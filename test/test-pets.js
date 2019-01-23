@@ -117,4 +117,12 @@ describe('Pets', ()  => {
       });
     });
   });
+
+  // TEST SEARCH
+  it('should search ALL pets by name and breed on /search GET', async () => {
+    const res = await chai.request(server).get('/search?term=norman');
+    res.should.have.status(200);
+    res.should.be.html;
+  });
+
 });
