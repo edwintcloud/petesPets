@@ -11,3 +11,7 @@
 .card {
     margin-bottom:20px;
 }
+
+.col-sm-8 > p {
+    word-break: break-all;
+}

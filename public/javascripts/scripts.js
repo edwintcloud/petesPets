@@ -19,6 +19,10 @@ if (document.querySelector("#new-pet")) {
         alert.textContent =
           "Oops, something went wrong saving your pet. Please check your information and try again.";
         alert.style.display = "block";
+        setTimeout(() => {
+          alert.style.display = 'none';
+          alert.classList.remove('alert-warning');
+         }, 3000)
       });
   });
 }
