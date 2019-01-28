@@ -114,21 +114,22 @@ module.exports = app => {
 
   // SEARCH PET
   app.get("/search", (req, res) => {
-    const term = new RegExp(req.query.term, "i");
-    const page = req.query.page || 1;
-    Pet.paginate(
-      {
-        $or: [{ name: term }, { species: term }]
-      },
-      { page: page }
-    ).then(results => {
-      res.render("pets-index", {
-        pets: results.docs,
-        pagesCount: results.pages,
-        currentPage: page,
-        term: req.query.term
+    Pet.find(
+      { $text: { $search: req.query.term } },
+      { score: { $meta: "textScore" } }
+    )
+      .sort({ score: { $meta: "textScore" } })
+      .limit(20)
+      .exec(function(err, pets) {
+        if (err) {
+          return res.status(400).send(err);
+        }
+        if (req.header("Content-Type") == "application/json") {
+          return res.json({ pets: pets });
+        } else {
+          return res.render("pets-index", { pets: pets, term: req.query.term });
+        }
       });
-    });
   });
 
   app.post("/pets/:id/purchase", (req, res) => {
@@ -137,21 +138,22 @@ module.exports = app => {
     // Token is created using Checkout or Elements!
     // Get the payment token ID submitted by the form:
     const token = req.body.stripeToken; // Using Express
-    Pet.findById(req.body.petId).then(pet => {
-      const charge = stripe.charges
-      .create({
-        amount: pet.price * 100,
-        currency: "usd",
-        description: "Example charge",
-        source: token
+    Pet.findById(req.body.petId)
+      .then(pet => {
+        const charge = stripe.charges
+          .create({
+            amount: pet.price * 100,
+            currency: "usd",
+            description: "Example charge",
+            source: token
+          })
+          .then(async () => {
+            await mailService.sendMail(req.body.stripeEmail, pet);
+            res.redirect(`/pets/${req.params.id}`);
+          });
       })
-      .then(async () => {
-        await mailService.sendMail(req.body.stripeEmail, pet);
-        res.redirect(`/pets/${req.params.id}`);
+      .catch(err => {
+        console.log(err);
       });
-    }).catch(err => {
-      console.log(err);
-    })
-    
   });
 };
