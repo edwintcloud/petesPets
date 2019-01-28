@@ -2,6 +2,7 @@ const Pet = require("../models/pet");
 const multer = require("multer");
 const { Storage } = require("@google-cloud/storage");
 const stripe = require("stripe")(process.env.PRIVATE_STRIPE_API_KEY);
+const mailService = require("../services/mailer");
 
 // Instantiate a storage client
 const googleCloudStorage = new Storage({
@@ -144,7 +145,8 @@ module.exports = app => {
         description: "Example charge",
         source: token
       })
-      .then(() => {
+      .then(async () => {
+        await mailService.sendMail(req.body.stripeEmail, pet);
         res.redirect(`/pets/${req.params.id}`);
       });
     }).catch(err => {
