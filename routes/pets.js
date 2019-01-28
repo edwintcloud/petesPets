@@ -1,6 +1,7 @@
 const Pet = require("../models/pet");
 const multer = require("multer");
-const {Storage} = require('@google-cloud/storage');
+const { Storage } = require("@google-cloud/storage");
+const stripe = require("stripe")(process.env.PRIVATE_STRIPE_API_KEY);
 
 // Instantiate a storage client
 const googleCloudStorage = new Storage({
@@ -127,5 +128,28 @@ module.exports = app => {
         term: req.query.term
       });
     });
+  });
+
+  app.post("/pets/:id/purchase", (req, res) => {
+    console.log(req.body);
+
+    // Token is created using Checkout or Elements!
+    // Get the payment token ID submitted by the form:
+    const token = req.body.stripeToken; // Using Express
+    Pet.findById(req.body.petId).then(pet => {
+      const charge = stripe.charges
+      .create({
+        amount: pet.price * 100,
+        currency: "usd",
+        description: "Example charge",
+        source: token
+      })
+      .then(() => {
+        res.redirect(`/pets/${req.params.id}`);
+      });
+    }).catch(err => {
+      console.log(err);
+    })
+    
   });
 };
