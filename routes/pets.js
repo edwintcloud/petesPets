@@ -34,7 +34,11 @@ module.exports = app => {
   // CREATE PET
   app.post("/pets", m.single("avatar"), (req, res, next) => {
     if (!req.file) {
-      res.status(400).send("No file uploaded.");
+      Pet.create(req.body).then(pet => {
+        res.send(pet);
+      }).catch(err => {
+        console.log(err);
+      });
       return;
     }
 
