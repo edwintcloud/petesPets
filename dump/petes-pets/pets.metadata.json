@@ -1,1 +1,0 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"petes-pets.pets"},{"v":2,"key":{"_fts":"text","_ftsx":1},"name":"My text index","ns":"petes-pets.pets","weights":{"description":1,"favoriteFood":2,"name":10,"species":4},"background":true,"default_language":"english","language_override":"language","textIndexVersion":3}],"uuid":"d86957f8b0de48078a7b874e5e80c787"}
