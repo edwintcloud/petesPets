@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
-    "test": "mocha --exit"
+    "test": "mocha --exit",
+    "preinstall": "node preinstall.js"
   },
   "dependencies": {
     "@google-cloud/storage": "^2.4.0",
